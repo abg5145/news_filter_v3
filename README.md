@@ -1,4 +1,4 @@
-# News Filter - Unbiased Article Analysis
+# UPDATE 3/1 News Filter - Unbiased Article Analysis
 
 A web application that analyzes news articles for bias, facts, opinions, and AI-generated content by comparing them with articles from multiple news sources.
 
