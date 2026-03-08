@@ -1,4 +1,6 @@
 import os
+import logging
+logging.basicConfig(level=logging.DEBUG)
 from flask import Flask, render_template, request, jsonify
 from api_calls.generate_search_terms import generate_search_terms
 from api_calls.select_diverse_articles import select_diverse_articles
@@ -6,6 +8,9 @@ from api_calls.analyze_article import analyze_article
 from utils.article_fetcher import fetch_articles_from_sources
 
 app = Flask(__name__)
+
+print("Flask app created successfully")
+print("Environment variables:", {k: v for k, v in os.environ.items() if 'API' in k or 'KEY' in k})
 
 @app.route('/')
 def index():
