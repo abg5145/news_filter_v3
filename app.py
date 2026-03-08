@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request, jsonify
 from api_calls.generate_search_terms import generate_search_terms
 from api_calls.select_diverse_articles import select_diverse_articles
