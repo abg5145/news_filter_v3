@@ -9,8 +9,15 @@ from utils.article_fetcher import fetch_articles_from_sources
 
 app = Flask(__name__)
 
+print("=== APP STARTUP DEBUG ===")
 print("Flask app created successfully")
-print("Environment variables:", {k: v for k, v in os.environ.items() if 'API' in k or 'KEY' in k})
+print("Working directory:", os.getcwd())
+print("Python path:", os.environ.get('PYTHONPATH', 'Not set'))
+print("All environment variables:")
+for key, value in sorted(os.environ.items()):
+    if any(keyword in key.upper() for keyword in ['API', 'KEY', 'TOKEN', 'SECRET', 'PORT']):
+        print(f"  {key}={value[:20]}..." if len(value) > 20 else f"  {key}={value}")
+print("=== END DEBUG ===")
 
 @app.route('/')
 def index():
