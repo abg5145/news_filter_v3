@@ -53,7 +53,6 @@ def fetch_from_guardian(search_terms: List[str], max_results: int = 10) -> List[
                     })
                     
         except Exception as e:
-            print(f"Error fetching from Guardian API for term '{term}': {e}")
             continue
     
     return articles[:max_results]

@@ -51,7 +51,6 @@ def fetch_from_news_api(search_terms: List[str], max_results: int = 10) -> List[
                     })
                     
         except Exception as e:
-            print(f"Error fetching from News API for term '{term}': {e}")
             continue
     
     return articles[:max_results]

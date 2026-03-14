@@ -1,3 +1,7 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
 from typing import List, Dict
 from news_sources.news_api import fetch_from_news_api
 from news_sources.guardian_api import fetch_from_guardian
@@ -30,22 +34,25 @@ def fetch_articles_from_sources(search_terms: List[str], sources: List[str] = No
     for source in sources:
         if source in source_functions:
             try:
-                print(f"Fetching articles from {source}...")
                 articles = source_functions[source](search_terms, max_results=10)
-                print(f"Successfully fetched {len(articles)} articles from {source}:")
-                for i, article in enumerate(articles, 1):
-                    print(f"  {i}. Title: {article.get('headline', 'N/A')}")
-                    print(f"     Source: {article.get('source', 'N/A')}")
-                    print(f"     URL: {article.get('url', 'N/A')}")
-                    print()
                 all_articles.extend(articles)
-                print(f"Total from {source}: {len(articles)} articles")
-                print("-" * 50)
+                
+                # Log articles from this source
+                if articles:
+                    article_list = []
+                    for article in articles:
+                        title = article.get('headline', 'N/A')
+                        date = article.get('published_at', 'N/A')
+                        # Ensure both are strings
+                        title_str = str(title) if title else 'N/A'
+                        date_str = str(date) if date else 'N/A'
+                        article_list.append(f"{title_str} - {date_str}")
+                    
+                    logger.info(f"Articles from {source}:\n" + "\n".join(article_list))
             except Exception as e:
-                print(f"Failed to fetch from {source}: {e}")
                 continue
         else:
-            print(f"Unknown source: {source}")
+            continue
     
     # Remove duplicates based on URL
     seen_urls = set()
@@ -57,13 +64,5 @@ def fetch_articles_from_sources(search_terms: List[str], sources: List[str] = No
     
     # Sort by publication date if available, otherwise keep original order
     unique_articles.sort(key=lambda x: x.get('published_at', ''), reverse=True)
-    
-    print(f"\nFinal unique articles after deduplication: {len(unique_articles)}")
-    print("Final article list:")
-    for i, article in enumerate(unique_articles[:10], 1):
-        print(f"  {i}. Title: {article.get('headline', 'N/A')}")
-        print(f"     Source: {article.get('source', 'N/A')}")
-        print(f"     Published: {article.get('published_at', 'N/A')}")
-        print()
     
     return unique_articles[:10]  # Return max 10 articles as specified

@@ -22,27 +22,15 @@ class OpenAIClient:
         Returns:
             Dictionary containing the response content and metadata
         """
-        print(f"\n=== ChatGPT API Call ===")
-        print(f"Model: {model}")
-        print(f"Temperature: {temperature}")
-        print(f"Messages:")
-        for i, msg in enumerate(messages):
-            print(f"  {i+1}. Role: {msg['role']}")
-            print(f"     Content (full):")
-            print(f"     {msg['content']}")
-            print(f"     --- End of Message {i+1} ---")
-        
         try:
             response = self.client.chat.completions.create(
                 model=model,
                 messages=messages,
-                temperature=temperature
+                temperature=temperature,
+                max_tokens=1000
             )
             
             content = response.choices[0].message.content
-            print(f"\nResponse: {content}")
-            print(f"Usage: {response.usage}")
-            print("=" * 50)
             
             return {
                 "success": True,
@@ -51,8 +39,6 @@ class OpenAIClient:
                 "model": model
             }
         except Exception as e:
-            print(f"Error: {e}")
-            print("=" * 50)
             return {
                 "success": False,
                 "error": str(e),
