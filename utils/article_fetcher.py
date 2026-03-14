@@ -41,14 +41,14 @@ def fetch_articles_from_sources(search_terms: List[str], sources: List[str] = No
                 if articles:
                     article_list = []
                     for article in articles:
-                        title = article.get('headline', 'N/A')
-                        date = article.get('published_at', 'N/A')
+                        title = str(article.get('headline', 'N/A'))
+                        date = str(article.get('published_at', 'N/A'))
                         # Ensure both are strings
                         title_str = str(title) if title else 'N/A'
                         date_str = str(date) if date else 'N/A'
                         article_list.append(f"{title_str} - {date_str}")
                     
-                    logger.info(f"Articles from {source}:\n" + "\n".join(article_list))
+                    logger.info(f"Articles from {source}: " + " | ".join(article_list))
             except Exception as e:
                 continue
         else:

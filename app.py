@@ -84,7 +84,7 @@ def analyze_article_endpoint():
             articles_info.append(
                 f"{i}. {headline} - {source} - {published_at} - Selected for diverse viewpoint"
             )
-        logger.info(f"Top 3 articles selected for comparison:\n" + "\n".join(articles_info))
+        logger.info("Top 3 articles selected for comparison: " + " | ".join(articles_info))
         
         # Step 4: Analyze original article with diverse articles using ChatGPT (advanced model)
         analysis_result = analyze_article(article_text, diverse_articles)
