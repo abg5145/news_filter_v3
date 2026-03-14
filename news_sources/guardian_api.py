@@ -25,7 +25,7 @@ def fetch_from_guardian(search_terms: List[str], max_results: int = 10) -> List[
             params = {
                 'q': term,
                 'api-key': GUARDIAN_API_KEY,
-                'page-size': min(max_results // len(search_terms), 5),
+                'page-size': min(max_results, 10),  # Don't divide by search terms
                 'order-by': 'relevance',
                 'show-fields': 'headline,byline,thumbnail,bodyText,shortUrl',
                 'from-date': two_weeks_ago  # Only articles from past 2 weeks
