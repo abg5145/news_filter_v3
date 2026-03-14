@@ -15,7 +15,7 @@ def generate_search_terms(article_text: str) -> dict:
     client = OpenAIClient()
     
     prompt = f"""
-    Analyze the following article text and generate 5-7 relevant search terms that would help find similar articles from different news sources.
+    Analyze the following article text and generate 3 relevant search terms that would help find similar articles from different news sources.
     Focus on key topics, people, events, and locations mentioned.
     Return the search terms as a comma-separated list.
 
