@@ -29,7 +29,7 @@ def is_running_on_aws():
     """Check if the app is running on AWS"""
     return os.environ.get("AWS_LAMBDA_FUNCTION_NAME") is not None or os.environ.get("ECS_CONTAINER_METADATA_URI") is not None
 
-def record_user_request_to_dynamodb(search_terms, user_ip, all_articles, top_3_titles, chatgpt_response):
+def record_user_request_to_dynamodb(search_terms, user_ip, all_articles, top_3_articles, chatgpt_response):
     """Record user request data to DynamoDB"""
     if not is_running_on_aws():
         logger.info("Skipping DynamoDB recording - not running on AWS")
@@ -55,10 +55,10 @@ def record_user_request_to_dynamodb(search_terms, user_ip, all_articles, top_3_t
         item = {
             'request_id': timestamp,  # Using timestamp as unique ID
             'timestamp': timestamp,
-            'search_terms': search_terms,
+            'search_terms': json.dumps(search_terms),
             'user_ip_address': user_ip,
             'all_articles': json.dumps(all_articles),
-            'top_3_article_titles': top_3_titles,
+            'top_3_articles': json.dumps(top_3_articles),
             'chatgpt_response': json.dumps(chatgpt_response)
         }
         
@@ -278,15 +278,12 @@ def analyze_article_endpoint():
                 # Get user IP address
                 user_ip = request.environ.get('HTTP_X_FORWARDED_FOR', request.environ.get('REMOTE_ADDR', 'unknown'))
                 
-                # Extract top 3 article titles
-                top_3_titles = [article.get('headline', 'N/A') for article in diverse_articles[:3]]
-                
                 # Record to DynamoDB
                 record_user_request_to_dynamodb(
                     search_terms=search_terms,
                     user_ip=user_ip,
                     all_articles=articles,
-                    top_3_titles=top_3_titles,
+                    top_3_articles=diverse_articles,
                     chatgpt_response=analysis_result['analysis']
                 )
             except Exception as e:

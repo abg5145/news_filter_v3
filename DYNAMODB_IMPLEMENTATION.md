@@ -20,10 +20,10 @@ Added functionality to record user request data to DynamoDB when the application
 - Added config imports for DynamoDB settings
 - Added `is_running_on_aws()` function to detect AWS environment
 - Added `record_user_request_to_dynamodb()` function that records:
-  1. Search terms
+  1. Search terms (JSON string)
   2. User IP address
   3. All articles found (JSON)
-  4. Top 3 article titles
+  4. Top 3 articles (JSON)
   5. Complete ChatGPT response
 - Modified `analyze_article_endpoint()` to call the recording function after successful analysis
 
@@ -38,10 +38,10 @@ The function only runs when deployed on AWS by checking for:
 Each request is stored with:
 - `request_id`: Timestamp as unique identifier
 - `timestamp`: ISO format timestamp
-- `search_terms`: List of search terms used
+- `search_terms`: JSON string of search terms used
 - `user_ip_address`: Client IP address (with X-Forwarded-For support)
 - `all_articles`: JSON string of all fetched articles
-- `top_3_article_titles`: List of titles from the 3 selected articles
+- `top_3_articles`: JSON string of the 3 selected diverse articles
 - `chatgpt_response`: JSON string of the complete analysis response
 
 ### Error Handling
