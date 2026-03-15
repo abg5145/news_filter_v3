@@ -1,4 +1,4 @@
-# API Keys Configuration
+import os
 # Add your API keys here
 
 OPENAI_API_KEY = "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"
@@ -15,3 +15,9 @@ NYTIMES_BASE_URL = "https://api.nytimes.com/svc/search/v2/articlesearch.json"
 # Model Configuration
 CHEAP_MODEL = "gpt-3.5-turbo"
 ADVANCED_MODEL = "gpt-4o"  # Using GPT-4o as equivalent to model 5.2
+
+# DynamoDB Configuration
+DYNAMODB_TABLE_NAME = "news_filter_requests"
+DYNAMODB_REGION = "us-east-1"  # Adjust as needed
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")

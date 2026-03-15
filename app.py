@@ -1,5 +1,7 @@
 import os
 import logging
+import json
+from datetime import datetime
 
 # Configure logging
 logging.basicConfig(
@@ -17,10 +19,56 @@ from api_calls.generate_search_terms import generate_search_terms
 from api_calls.select_diverse_articles import select_diverse_articles
 from api_calls.analyze_article import analyze_article
 from utils.article_fetcher import fetch_articles_from_sources
+from config import (DYNAMODB_TABLE_NAME, DYNAMODB_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
 
 app = Flask(__name__)
 
 logger = logging.getLogger(__name__)
+
+def is_running_on_aws():
+    """Check if the app is running on AWS"""
+    return os.environ.get("AWS_LAMBDA_FUNCTION_NAME") is not None or os.environ.get("ECS_CONTAINER_METADATA_URI") is not None
+
+def record_user_request_to_dynamodb(search_terms, user_ip, all_articles, top_3_titles, chatgpt_response):
+    """Record user request data to DynamoDB"""
+    if not is_running_on_aws():
+        logger.info("Skipping DynamoDB recording - not running on AWS")
+        return
+    
+    try:
+        import boto3
+        
+        # Initialize DynamoDB client
+        dynamodb = boto3.resource(
+            'dynamodb',
+            region_name=DYNAMODB_REGION,
+            aws_access_key_id=AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=AWS_SECRET_ACCESS_KEY
+        )
+        
+        table = dynamodb.Table(DYNAMODB_TABLE_NAME)
+        
+        # Create timestamp for unique ID
+        timestamp = datetime.utcnow().isoformat() + 'Z'
+        
+        # Prepare the item to insert
+        item = {
+            'request_id': timestamp,  # Using timestamp as unique ID
+            'timestamp': timestamp,
+            'search_terms': search_terms,
+            'user_ip_address': user_ip,
+            'all_articles': json.dumps(all_articles),
+            'top_3_article_titles': top_3_titles,
+            'chatgpt_response': json.dumps(chatgpt_response)
+        }
+        
+        # Insert item into DynamoDB
+        table.put_item(Item=item)
+        logger.info(f"Successfully recorded request to DynamoDB with ID: {timestamp}")
+        
+    except Exception as e:
+        logger.error(f"Failed to record request to DynamoDB: {e}")
+        # Don't raise the exception to avoid breaking the main functionality
 
 @app.route('/')
 def index():
@@ -224,6 +272,27 @@ def analyze_article_endpoint():
                 }
             }
             logger.info("DEBUG: Response data prepared successfully")
+            
+            # Record request data to DynamoDB if running on AWS
+            try:
+                # Get user IP address
+                user_ip = request.environ.get('HTTP_X_FORWARDED_FOR', request.environ.get('REMOTE_ADDR', 'unknown'))
+                
+                # Extract top 3 article titles
+                top_3_titles = [article.get('headline', 'N/A') for article in diverse_articles[:3]]
+                
+                # Record to DynamoDB
+                record_user_request_to_dynamodb(
+                    search_terms=search_terms,
+                    user_ip=user_ip,
+                    all_articles=articles,
+                    top_3_titles=top_3_titles,
+                    chatgpt_response=analysis_result['analysis']
+                )
+            except Exception as e:
+                logger.error(f"Error recording to DynamoDB: {e}")
+                # Continue without failing the request
+            
             return jsonify(response_data)
         except Exception as e:
             logger.error(f"DEBUG: Error preparing response: {e}")
