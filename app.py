@@ -44,21 +44,27 @@ def analyze_article_endpoint():
             }), 400
         
         # Step 1: Generate search terms using ChatGPT (cheaper model)
+        logger.info(f"DEBUG: Starting search term generation for article length: {len(article_text)}")
         search_result = generate_search_terms(article_text)
         if not search_result['success']:
+            logger.error(f"DEBUG: Search term generation failed: {search_result.get('error', 'Unknown error')}")
             return jsonify({
                 'success': False,
                 'error': f"Failed to generate search terms: {search_result['error']}"
             }), 500
         
         search_terms = search_result['search_terms']
+        logger.info(f"DEBUG: Generated search terms: {search_terms}")
         search_terms_str = ', '.join([str(term) for term in search_terms])
         logger.info(f"Search terms derived: {search_terms_str}")
         
         # Step 2: Fetch articles from at least 3 news sources
+        logger.info(f"DEBUG: Starting article fetching with search terms: {search_terms}")
         articles = fetch_articles_from_sources(search_terms, ['news_api', 'guardian', 'nytimes'])
+        logger.info(f"DEBUG: Fetched {len(articles)} articles total")
         
         if len(articles) < 3:
+            logger.error(f"DEBUG: Not enough articles fetched, only {len(articles)}")
             return jsonify({
                 'success': False,
                 'error': f"Could not fetch enough articles. Only found {len(articles)} articles."

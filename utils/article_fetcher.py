@@ -31,38 +31,59 @@ def fetch_articles_from_sources(search_terms: List[str], sources: List[str] = No
     }
     
     # Fetch articles from each specified source
+    logger.info(f"DEBUG: Fetching articles from sources: {sources}")
     for source in sources:
         if source in source_functions:
             try:
-                articles = source_functions[source](search_terms, max_results=10)
+                logger.info(f"DEBUG: Calling {source} API with search_terms: {search_terms}")
+                articles = source_functions[source](search_terms, max_results=10)  # Use all search terms
+                logger.info(f"DEBUG: {source} API call completed, returned {len(articles)} articles")
                 all_articles.extend(articles)
-                
+                logger.info(f"DEBUG: {source} returned {len(articles)} articles")
                 # Log articles from this source
                 if articles:
                     article_list = []
                     for article in articles:
-                        title = str(article.get('headline', 'N/A'))
-                        date = str(article.get('published_at', 'N/A'))
+                        # Handle different field names from different APIs
+                        title = (article.get('headline') or 
+                                article.get('title') or 
+                                article.get('headline', {}).get('main', 'N/A'))
+                        
+                        date = (article.get('published_at') or 
+                               article.get('publishedAt') or 
+                               article.get('pub_date') or 
+                               article.get('webPublicationDate', 'N/A'))
+                        
                         # Ensure both are strings
-                        title_str = str(title) if title else 'N/A'
-                        date_str = str(date) if date else 'N/A'
+                        title_str = str(title) if title and title != 'N/A' else 'N/A'
+                        date_str = str(date) if date and date != 'N/A' else 'N/A'
                         article_list.append(f"{title_str} - {date_str}")
                     
                     logger.info(f"Articles from {source}: " + " | ".join(article_list))
+                else:
+                    logger.info(f"DEBUG: {source} returned no articles")
+            
             except Exception as e:
+                logger.error(f"DEBUG: {source} API failed: {e}")
+                import traceback
+                logger.error(f"DEBUG: {source} API traceback: {traceback.format_exc()}")
                 continue
-        else:
-            continue
     
-    # Remove duplicates based on URL
+    # Remove duplicates based on URL, but keep articles without URLs too
+    logger.info(f"DEBUG: Total raw articles collected: {len(all_articles)}")
     seen_urls = set()
     unique_articles = []
     for article in all_articles:
-        if article.get('url') and article['url'] not in seen_urls:
-            seen_urls.add(article['url'])
+        article_url = article.get('url')
+        if article_url and article_url not in seen_urls:
+            seen_urls.add(article_url)
             unique_articles.append(article)
+        elif not article_url:  # Keep articles without URLs
+            unique_articles.append(article)
+    
+    logger.info(f"DEBUG: Articles after deduplication: {len(unique_articles)}")
     
     # Sort by publication date if available, otherwise keep original order
     unique_articles.sort(key=lambda x: x.get('published_at', ''), reverse=True)
     
-    return unique_articles[:10]  # Return max 10 articles as specified
+    return unique_articles[:30]  # Return max 30 articles as specified

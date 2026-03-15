@@ -1,3 +1,4 @@
+import logging
 import requests
 from datetime import datetime, timedelta
 from typing import List, Dict
@@ -5,7 +6,7 @@ from config import NYTIMES_API_KEY, NYTIMES_BASE_URL
 
 def fetch_from_nytimes(search_terms: List[str], max_results: int = 10) -> List[Dict]:
     """
-    Fetch articles from New York Times API (simplified for debugging)
+    Fetch articles from New York Times API
     
     Args:
         search_terms: List of search terms to query
@@ -15,8 +16,10 @@ def fetch_from_nytimes(search_terms: List[str], max_results: int = 10) -> List[D
         List of article dictionaries
     """
     articles = []
+    logger = logging.getLogger(__name__)
+    logger.info("nytimes api function started")
     
-    for term in search_terms[:3]:  # Limit to avoid API rate limits
+    for term in search_terms:  # Limit to avoid API rate limits
         try:
             # Simplified API call for debugging
             url = NYTIMES_BASE_URL
@@ -27,22 +30,39 @@ def fetch_from_nytimes(search_terms: List[str], max_results: int = 10) -> List[D
                 'page': 0
             }
             
+            logger.info(f"NY Times API request: term='{term}', page=0")
             response = requests.get(url, params=params)
             
-            if response.status_code != 200:
-                continue
-                
+            # Log response regardless of status
+            response_data = response.json()
+            docs = response_data.get('response', {}).get('docs', [])
+            
+            # Limit to first 3 articles from the API response
+            docs = docs[:3]
+            logger.info(f"NY Times API response: {response.status_code}, articles_found={len(docs)}, titles={[d.get('headline', {}).get('main', 'N/A') for d in docs]}")
+            
+            if response.status_code == 200:
+                logger.info(f"NY Times API success: {len(docs)} articles returned")
+            else:
+                logger.error(f"NY Times API error: {response.status_code} - {response.text}")
+            
             response.raise_for_status()
             
             data = response.json()
             
             # Check different possible response structures
             if 'response' in data and 'docs' in data['response']:
-                docs = data['response']['docs']
+                all_docs = data['response']['docs']
             elif 'docs' in data:
-                docs = data['docs']
+                all_docs = data['docs']
             else:
-                docs = []
+                all_docs = []
+            
+            # Use the already limited docs (first 3)
+            docs = all_docs[:3]
+            
+            # Limit to 3 articles per search term
+            docs = docs[:3]
             
             for article in docs:
                 # Simple article processing

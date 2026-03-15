@@ -1,3 +1,4 @@
+import logging
 import requests
 from datetime import datetime, timedelta
 from typing import List, Dict
@@ -15,23 +16,36 @@ def fetch_from_guardian(search_terms: List[str], max_results: int = 10) -> List[
         List of article dictionaries
     """
     articles = []
-    
+    logger = logging.getLogger(__name__)
+    logger.info("guardian api function started")
     # Calculate date from 2 weeks ago
     two_weeks_ago = (datetime.now() - timedelta(days=14)).strftime('%Y-%m-%d')
     
-    for term in search_terms[:3]:  # Limit to avoid API rate limits
+    for term in search_terms:  # Use all search terms (removed [:3] limit)
         try:
             url = f"{GUARDIAN_BASE_URL}/search"
             params = {
                 'q': term,
                 'api-key': GUARDIAN_API_KEY,
-                'page-size': min(max_results, 10),  # Don't divide by search terms
+                'page-size': 3,  # Don't divide by search terms
                 'order-by': 'relevance',
                 'show-fields': 'headline,byline,thumbnail,bodyText,shortUrl',
                 'from-date': two_weeks_ago  # Only articles from past 2 weeks
             }
             
+            logger.info(f"Guardian API request: term='{term}', page-size=3")
             response = requests.get(url, params=params)
+            
+            # Log response regardless of status
+            response_data = response.json()
+            results = response_data.get('response', {}).get('results', [])
+            logger.info(f"Guardian API response: {response.status_code}, articles_found={len(results)}, titles={[r.get('fields', {}).get('headline', 'N/A') for r in results[:3]]}")
+            
+            if response.status_code == 200:
+                logger.info(f"Guardian API success: {len(response_data.get('response', {}).get('results', []))} articles returned")
+            else:
+                logger.error(f"Guardian API error: {response.status_code} - {response.text}")
+            
             response.raise_for_status()
             
             data = response.json()
