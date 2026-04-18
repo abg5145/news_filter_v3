@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>News Filter</title>
+  <link rel="stylesheet" href="sidebar.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <div class="header">
+      <i class="fas fa-newspaper"></i>
+      <span>News Filter</span>
+    </div>
+
+    <!-- Idle state -->
+    <div id="idleState">
+      <p class="subtitle">Analyze the article on this page for bias, facts, and AI-generated content.</p>
+      <button id="analyzeBtn">
+        <i class="fas fa-search"></i> Analyze This Article
+      </button>
+    </div>
+
+    <!-- Loading state -->
+    <div id="loadingState" class="hidden">
+      <div class="spinner"></div>
+      <p class="loading-text">Analyzing article...</p>
+      <ul class="progress-steps">
+        <li><i class="fas fa-circle-notch fa-spin"></i> Generating search terms</li>
+        <li><i class="fas fa-circle muted"></i> Fetching articles from sources</li>
+        <li><i class="fas fa-circle muted"></i> Selecting diverse perspectives</li>
+        <li><i class="fas fa-circle muted"></i> Performing analysis</li>
+      </ul>
+    </div>
+
+    <!-- Error state -->
+    <div id="errorState" class="hidden">
+      <div class="error-box">
+        <i class="fas fa-exclamation-circle"></i>
+        <p id="errorMessage"></p>
+        <button id="retryBtn"><i class="fas fa-redo"></i> Try Again</button>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="resultsSection" class="hidden">
+      <button id="resetBtn" class="reset-btn">
+        <i class="fas fa-arrow-left"></i> Analyze Another
+      </button>
+
+      <!-- Section 1: Similar Articles -->
+      <section class="result-section">
+        <h2><i class="fas fa-globe green"></i> Similar Articles</h2>
+        <div id="similarArticles"></div>
+      </section>
+
+      <!-- Section 2: Analysis -->
+      <section class="result-section">
+        <h2><i class="fas fa-microscope purple"></i> Facts, Opinions & Biases</h2>
+
+        <h3 class="section-label green">Key Facts</h3>
+        <div id="keyFacts"></div>
+
+        <h3 class="section-label yellow">Opinions</h3>
+        <div id="opinions"></div>
+
+        <h3 class="section-label red">Biases</h3>
+        <div id="biases"></div>
+
+        <h3 class="section-label blue">Overall Assessment</h3>
+        <div id="overallAssessment" class="assessment-box"></div>
+      </section>
+
+      <!-- Section 3: AI Score -->
+      <section class="result-section">
+        <h2><i class="fas fa-robot orange"></i> AI Generation Score</h2>
+        <div class="score-container">
+          <div class="score-circle">
+            <span id="aiScore">-</span><span class="pct">%</span>
+          </div>
+          <div class="score-bar-wrap">
+            <div id="aiScoreBar" class="score-bar"></div>
+          </div>
+        </div>
+        <div id="aiReasoning"></div>
+      </section>
+    </div>
+  </div>
+
+  <script src="sidebar.js"></script>
+</body>
+</html>

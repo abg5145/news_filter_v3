@@ -15,6 +15,7 @@ logging.getLogger('urllib3').setLevel(logging.WARNING)
 logging.getLogger('requests').setLevel(logging.WARNING)
 
 from flask import Flask, render_template, request, jsonify
+from flask_cors import CORS
 from api_calls.generate_search_terms import generate_search_terms
 from api_calls.select_diverse_articles import select_diverse_articles
 from api_calls.analyze_article import analyze_article
@@ -22,6 +23,7 @@ from utils.article_fetcher import fetch_articles_from_sources
 from config import (DYNAMODB_TABLE_NAME, DYNAMODB_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
 
 app = Flask(__name__)
+CORS(app, origins=["chrome-extension://*"])
 
 logger = logging.getLogger(__name__)
 
