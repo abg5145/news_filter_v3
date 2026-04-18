@@ -29,7 +29,7 @@ def is_running_on_aws():
     """Check if the app is running on AWS"""
     return os.environ.get("AWS_LAMBDA_FUNCTION_NAME") is not None or os.environ.get("ECS_CONTAINER_METADATA_URI") is not None
 
-def record_user_request_to_dynamodb(search_terms, user_ip, all_articles, top_3_articles, chatgpt_response):
+def record_user_request_to_dynamodb(search_terms, user_ip, all_articles, top_5_articles, chatgpt_response):
     """Record user request data to DynamoDB"""
     if not is_running_on_aws():
         logger.info("Skipping DynamoDB recording - not running on AWS")
@@ -58,7 +58,7 @@ def record_user_request_to_dynamodb(search_terms, user_ip, all_articles, top_3_a
             'search_terms': json.dumps(search_terms),
             'user_ip_address': user_ip,
             'all_articles': json.dumps(all_articles),
-            'top_3_articles': json.dumps(top_3_articles),
+            'top_5_articles': json.dumps(top_5_articles),
             'chatgpt_response': json.dumps(chatgpt_response)
         }
         
@@ -111,14 +111,14 @@ def analyze_article_endpoint():
         articles = fetch_articles_from_sources(search_terms, ['news_api', 'guardian', 'nytimes', 'event_registry'])
         logger.info(f"DEBUG: Fetched {len(articles)} articles total")
         
-        if len(articles) < 3:
+        if len(articles) < 5:
             logger.error(f"DEBUG: Not enough articles fetched, only {len(articles)}")
             return jsonify({
                 'success': False,
                 'error': f"Could not fetch enough articles. Only found {len(articles)} articles."
             }), 500
         
-        # Step 3: Select top 3 articles with differing viewpoints using ChatGPT (cheaper model)
+        # Step 3: Select top 5 articles with differing viewpoints using ChatGPT (cheaper model)
         diverse_result = select_diverse_articles(articles, article_text)
         if not diverse_result['success']:
             return jsonify({
@@ -129,7 +129,7 @@ def analyze_article_endpoint():
         selected_indices = [article['article_index'] - 1 for article in diverse_result['selected_articles']]
         diverse_articles = [articles[i] for i in selected_indices if i < len(articles)]
         
-        # Log top 3 articles selected for comparison
+        # Log top 5 articles selected for comparison
         articles_info = []
         for i, article in enumerate(diverse_articles, 1):
             headline = str(article.get('headline', 'N/A'))
@@ -138,7 +138,7 @@ def analyze_article_endpoint():
             articles_info.append(
                 f"{i}. {headline} - {source} - {published_at} - Selected for diverse viewpoint"
             )
-        logger.info("Top 3 articles selected for comparison: " + " | ".join(articles_info))
+        logger.info("Top 5 articles selected for comparison: " + " | ".join(articles_info))
         
         # Step 4: Analyze original article with diverse articles using ChatGPT (advanced model)
         analysis_result = analyze_article(article_text, diverse_articles)
@@ -251,7 +251,7 @@ def analyze_article_endpoint():
             response_data = {
                 'success': True,
                 'section_1': {
-                    'similar_articles': diverse_articles,  # Return only the 3 diverse articles as tiles
+                    'similar_articles': diverse_articles,  # Return only the 5 diverse articles as tiles
                     'total_found': len(diverse_articles)
                 },
                 'section_2': {
@@ -283,7 +283,7 @@ def analyze_article_endpoint():
                     search_terms=search_terms,
                     user_ip=user_ip,
                     all_articles=articles,
-                    top_3_articles=diverse_articles,
+                    top_5_articles=diverse_articles,
                     chatgpt_response=analysis_result['analysis']
                 )
             except Exception as e:

@@ -3,7 +3,7 @@ from config import CHEAP_MODEL
 
 def select_diverse_articles(article_summaries: list, original_article: str = "") -> dict:
     """
-    Second ChatGPT call: Select top 3 articles with differing viewpoints
+    Second ChatGPT call: Select top 5 articles with differing viewpoints
     Uses cheaper model (gpt-3.5-turbo)
     
     Args:
@@ -32,7 +32,7 @@ def select_diverse_articles(article_summaries: list, original_article: str = "")
     Available Article Summaries:
     {formatted_summaries}
     
-    Your task: Select exactly 3 articles that:
+    Your task: Select exactly 5 articles that:
     1. Cover the SAME topic/event/issue as the original article
     2. Represent different viewpoints or perspectives (liberal, conservative, centrist, different geographic focus, etc.)
     3. Are from credible news sources
