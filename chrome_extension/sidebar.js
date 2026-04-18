@@ -1,5 +1,5 @@
 // Set this to your App Runner URL in production, or localhost for local testing
-const BACKEND_URL = 'https://YOUR_APP_RUNNER_URL';
+const BACKEND_URL = 'https://gxpjyxtmsy.us-east-1.awsapprunner.com';
 
 function $(id) { return document.getElementById(id); }
 
