@@ -5,12 +5,14 @@ OPENAI_API_KEY = "sk-proj-nyHAix-R8M_QDANJzLzkr6sfs95M5QNELBBgX7VAzTIsZohoZGv9_N
 NEWS_API_KEY = "68487c2992f94941a8411595b3df9742"
 GUARDIAN_API_KEY = "71011091-f837-4627-9ae6-78851c554fbc"
 NYTIMES_API_KEY = "rGB0wXngW7FCXk7I6Z7JRA4AqvRGzAu770S2uMdC2g2Bn9Mw"
+EVENT_REGISTRY_API_KEY = "fb7997c7-bb07-4870-9e0e-e118d86e2e64"
 
 # API Configuration
 OPENAI_BASE_URL = "https://api.openai.com/v1"
 NEWS_API_BASE_URL = "https://newsapi.org/v2"
 GUARDIAN_BASE_URL = "https://content.guardianapis.com"
 NYTIMES_BASE_URL = "https://api.nytimes.com/svc/search/v2/articlesearch.json"
+EVENT_REGISTRY_BASE_URL = "https://eventregistry.org/api/v1"
 
 # Model Configuration
 CHEAP_MODEL = "gpt-3.5-turbo"

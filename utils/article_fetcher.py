@@ -6,28 +6,30 @@ from typing import List, Dict
 from news_sources.news_api import fetch_from_news_api
 from news_sources.guardian_api import fetch_from_guardian
 from news_sources.nytimes_api import fetch_from_nytimes
+from news_sources.event_registry_api import fetch_from_event_registry
 
 def fetch_articles_from_sources(search_terms: List[str], sources: List[str] = None) -> List[Dict]:
     """
     Single function for fetching articles from multiple news sources
-    
+
     Args:
         search_terms: List of search terms to query
         sources: List of news sources to fetch from (default: all available)
-        
+
     Returns:
         Combined list of articles from all sources
     """
     if sources is None:
-        sources = ['news_api', 'guardian', 'nytimes']
-    
+        sources = ['news_api', 'guardian', 'nytimes', 'event_registry']
+
     all_articles = []
-    
+
     # Map source names to their respective functions
     source_functions = {
         'news_api': fetch_from_news_api,
         'guardian': fetch_from_guardian,
-        'nytimes': fetch_from_nytimes
+        'nytimes': fetch_from_nytimes,
+        'event_registry': fetch_from_event_registry
     }
     
     # Fetch articles from each specified source

@@ -108,7 +108,7 @@ def analyze_article_endpoint():
         
         # Step 2: Fetch articles from at least 3 news sources
         logger.info(f"DEBUG: Starting article fetching with search terms: {search_terms}")
-        articles = fetch_articles_from_sources(search_terms, ['news_api', 'guardian', 'nytimes'])
+        articles = fetch_articles_from_sources(search_terms, ['news_api', 'guardian', 'nytimes', 'event_registry'])
         logger.info(f"DEBUG: Fetched {len(articles)} articles total")
         
         if len(articles) < 3:
