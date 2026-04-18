@@ -13,4 +13,4 @@ run:
   command: gunicorn --bind 0.0.0.0:8080 app:app
   env:
     - name: OPENAI_API_KEY
-      value-from: arn:aws:secretsmanager:YOUR_SECRET_ARN
+      value-from: arn:aws:secretsmanager:us-east-1:920263653167:secret:OPENAI_API_KEY-792kO0
