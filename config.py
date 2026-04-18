@@ -1,9 +1,27 @@
 import os
+import json
 from dotenv import load_dotenv
 load_dotenv()
-# Add your API keys here
 
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+def _get_openai_key():
+    # Use .env locally; fetch from Secrets Manager on AWS
+    key = os.environ.get("OPENAI_API_KEY")
+    if key:
+        return key
+    try:
+        import boto3
+        client = boto3.client("secretsmanager", region_name="us-east-1")
+        secret = client.get_secret_value(SecretId="OPENAI_API_KEY")
+        value = secret.get("SecretString", "")
+        try:
+            return json.loads(value).get("OPENAI_API_KEY", value)
+        except (json.JSONDecodeError, AttributeError):
+            return value
+    except Exception:
+        return None
+
+# Add your API keys here
+OPENAI_API_KEY = _get_openai_key()
 NEWS_API_KEY = "68487c2992f94941a8411595b3df9742"
 GUARDIAN_API_KEY = "71011091-f837-4627-9ae6-78851c554fbc"
 NYTIMES_API_KEY = "rGB0wXngW7FCXk7I6Z7JRA4AqvRGzAu770S2uMdC2g2Bn9Mw"
