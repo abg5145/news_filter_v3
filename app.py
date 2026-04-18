@@ -51,14 +51,17 @@ def record_user_request_to_dynamodb(search_terms, user_ip, all_articles, top_5_a
         # Create timestamp for unique ID
         timestamp = datetime.utcnow().isoformat() + 'Z'
         
+        def strip_content(articles):
+            return [{k: v for k, v in a.items() if k != 'content'} for a in articles]
+
         # Prepare the item to insert
         item = {
             'request_id': timestamp,  # Using timestamp as unique ID
             'timestamp': timestamp,
             'search_terms': json.dumps(search_terms),
             'user_ip_address': user_ip,
-            'all_articles': json.dumps(all_articles),
-            'top_5_articles': json.dumps(top_5_articles),
+            'all_articles': json.dumps(strip_content(all_articles)),
+            'top_5_articles': json.dumps(strip_content(top_5_articles)),
             'chatgpt_response': json.dumps(chatgpt_response)
         }
         
